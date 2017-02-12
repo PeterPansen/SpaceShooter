@@ -28,9 +28,12 @@ public class GameScreen extends ScreenAdapter {
 	private Texture hoot;
 	private Texture ship_Texture;
 	private Texture space_background;
+	private Texture atmosphere_tex;
+	private Texture stars;
 	private SpaceShip ship;
 	private float shipWidth = 100;
 	private float shipHeight = 100;
+	private ScrollingStars scrollStars;
 
 	@Override
 	public void render(float delta) {
@@ -47,6 +50,8 @@ public class GameScreen extends ScreenAdapter {
 		batch.setTransformMatrix(camera.view);
 		batch.begin();
 		batch.draw(space_background,0,0,WORLD_WIDTH,WORLD_HEIGHT);
+		scrollStars.draw(batch);
+		batch.draw(atmosphere_tex,0,0,WORLD_WIDTH,WORLD_HEIGHT);
 		ship.draw(batch);
 		batch.end();
 		
@@ -57,9 +62,21 @@ public class GameScreen extends ScreenAdapter {
 		shapeRenderer.end();
 	}
 	
+	@Override
+	public void dispose() {
+		// TODO Auto-generated method stub
+		super.dispose();
+		hoot.dispose();
+		ship_Texture.dispose();
+		space_background.dispose();
+		atmosphere_tex.dispose();
+		stars.dispose();
+	}
+
 	private void updateMovement(float delta)
 	{
 		ship.update(delta);
+		scrollStars.update(delta);
 	}
 
 	@Override
@@ -80,8 +97,11 @@ public class GameScreen extends ScreenAdapter {
 		shapeRenderer = new ShapeRenderer();
 		batch = new SpriteBatch();
 		hoot = new Texture("hoothoot.png");
-		space_background = new Texture("bg_galaxy.png");
+		space_background = new Texture("space_background.png");
 		ship_Texture = new Texture("ship_sheet.png");
+		atmosphere_tex = new Texture("atmosphere_layer.png");
+		stars = new Texture("stars1.png");
+		scrollStars = new ScrollingStars(stars, this);
 		ship = new SpaceShip(WORLD_WIDTH/2 - shipWidth/2, 0,shipWidth,shipHeight,ship_Texture);
 		
 	}

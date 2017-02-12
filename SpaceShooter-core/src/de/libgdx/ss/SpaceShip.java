@@ -11,30 +11,38 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class SpaceShip {
 	
+	//Main collision rectangle used for collision detection
 	private final Rectangle collisionRectangle;
 	
+	//Width and Height of our ship and its colliders
 	private float width = 100;
 	private float height = 100;
 	
+	//Movement speed of our ship
 	private float speed = 200.0f;
 	
+	//x- and y-Position of the Ship
 	private float xPos;
 	private float yPos;
 	
+	//Speed along xAxis. Needed for animation and Physics. Calculated from former/old xPos
 	private float xSpeed;
 	private float oldXPos = 0;
-	//Upper Flying Bound
+	
+	//Upper Flying Bound. How far can the player go up
 	private float yUpperBound = 100.0f;
 	
-	GameScreen gameScreenRef;
+	//Reference to the gameScreen for WIDTH/HEIGHT etc
+	private GameScreen gameScreenRef;
 	
-	private TextureRegion[][] shipTexRegions;
-	
-	private final Animation animTurnLeft;
-	private final Animation animTurnRight;
+	//Animations
+	//Our general turning animation. Goes left. Is flipped for right maneuvers
+	private final Animation animTurn;
 	private float animTurnTimer = 0.0f;
-	private static final float FRAME_DURATION = 0.05f;
+	private TextureRegion[][] shipTexRegions;
+	private static final float FRAME_DURATION = 0.07f;
 	private TextureRegion currentTexReg;
+	
 	
 	public SpaceShip(float x, float y, float shipwidth, float shipheight, Texture shipTex)
 	{
@@ -43,27 +51,34 @@ public class SpaceShip {
 		yPos = y;
 		width = shipwidth;
 		height = shipheight;
-		this.shipTexRegions = new TextureRegion(shipTex).split(100,100);
+		shipTexRegions = new TextureRegion(shipTex).split(100,100);
 		
-		animTurnLeft = new Animation(FRAME_DURATION,shipTexRegions[1][1],shipTexRegions[1][0],shipTexRegions[0][2],shipTexRegions[0][1]);
-		animTurnLeft.setPlayMode(Animation.PlayMode.NORMAL);
-		
-		animTurnRight = new Animation(FRAME_DURATION,shipTexRegions[1][1],shipTexRegions[1][2],shipTexRegions[2][0],shipTexRegions[2][1]);
-		animTurnRight.setPlayMode(Animation.PlayMode.NORMAL);
+		animTurn = new Animation(FRAME_DURATION,shipTexRegions[1][1],shipTexRegions[1][0],shipTexRegions[0][2],shipTexRegions[0][1]);
+		animTurn.setPlayMode(Animation.PlayMode.NORMAL);
 		
 		collisionRectangle = new Rectangle(xPos,yPos,width,height);
 	}
 	
 	public void draw(SpriteBatch spriteBatch)
 	{
-		//System.out.println(animTurnTimer);
-		if(animTurnTimer >= 0)
+		if(animTurnTimer > 0)
 		{
-			currentTexReg = (TextureRegion) animTurnRight.getKeyFrame(animTurnTimer);
+			currentTexReg = (TextureRegion) animTurn.getKeyFrame(animTurnTimer);
+			
+			if(!currentTexReg.isFlipX())
+			{
+				currentTexReg.flip(true, false);
+			}
 		}
+		
 		else
 		{
-			currentTexReg = (TextureRegion) animTurnLeft.getKeyFrame(Math.abs(animTurnTimer));
+			currentTexReg = (TextureRegion) animTurn.getKeyFrame(Math.abs(animTurnTimer));
+			
+			if(currentTexReg.isFlipX())
+			{
+				currentTexReg.flip(true, false);
+			}
 		}
 		
 		spriteBatch.draw(currentTexReg, xPos, yPos, width, height);
@@ -95,7 +110,7 @@ public class SpaceShip {
 		
 			if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && (collisionRectangle.x < GameScreen.WORLD_WIDTH - width) && (!Gdx.input.isKeyPressed(Input.Keys.LEFT)))
 			{
-				if(!animTurnRight.isAnimationFinished(Math.abs(animTurnTimer)))
+				if(!animTurn.isAnimationFinished(Math.abs(animTurnTimer)))
 				{
 					animTurnTimer += delta;
 				}
@@ -105,16 +120,13 @@ public class SpaceShip {
 			
 			if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && collisionRectangle.x > 0 && (!Gdx.input.isKeyPressed((Input.Keys.RIGHT))))
 			{
-				if(!animTurnLeft.isAnimationFinished(Math.abs(animTurnTimer)))
+				if(!animTurn.isAnimationFinished(Math.abs(animTurnTimer)))
 				{
 					animTurnTimer -= delta;
 				}
 	
 				xPos -= speed * delta;
 			}
-
-			
-			
 
 		if(Gdx.input.isKeyPressed(Input.Keys.UP) && collisionRectangle.y < yUpperBound)
 		{
