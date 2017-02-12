@@ -81,7 +81,7 @@ public class GameScreen extends ScreenAdapter {
 		batch = new SpriteBatch();
 		hoot = new Texture("hoothoot.png");
 		space_background = new Texture("bg_galaxy.png");
-		ship_Texture = new Texture("alienship_new_2_try.png");
+		ship_Texture = new Texture("ship_sheet.png");
 		ship = new SpaceShip(WORLD_WIDTH/2 - shipWidth/2, 0,shipWidth,shipHeight,ship_Texture);
 		
 	}
